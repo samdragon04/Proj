@@ -1,0 +1,56 @@
+Sub Button1_Click()
+    Dim filename As Variant
+    Dim ws As Worksheet
+    Dim rng As Range
+    Dim cell As Range
+
+    ' Open the file dialog
+    filename = Application.GetOpenFilename(FileFilter:="CSV Files, *.csv", Title:="Select a CSV file", MultiSelect:=False)
+
+    If filename <> False Then
+        ' Create a new sheet
+        Set ws = ThisWorkbook.Sheets.Add
+
+        ' Import the CSV file
+        With ws.QueryTables.Add(Connection:="TEXT;" & filename, Destination:=ws.Range("A1"))
+            .Name = "CSV Import"
+            .FieldNames = True
+            .RowNumbers = False
+            .FillAdjacentFormulas = False
+            .PreserveFormatting = True
+            .RefreshOnFileOpen = False
+            .RefreshStyle = xlInsertDeleteCells
+            .SavePassword = False
+            .SaveData = True
+            .AdjustColumnWidth = True
+            .RefreshPeriod = 0
+            .TextFilePromptOnRefresh = False
+            .TextFilePlatform = 437
+            .TextFileStartRow = 1
+            .TextFileParseType = xlDelimited
+            .TextFileTextQualifier = xlTextQualifierDoubleQuote
+            .TextFileConsecutiveDelimiter = False
+            .TextFileTabDelimiter = False
+            .TextFileSemicolonDelimiter = False
+            .TextFileCommaDelimiter = True
+            .TextFileSpaceDelimiter = False
+            .TextFileColumnDataTypes = Array(2) ' Treat the first column as text
+            .TextFileTrailingMinusNumbers = True
+            .Refresh BackgroundQuery:=False
+        End With
+
+        ' Assume "parent" is column A and "child" is column B
+        Set rng = ws.Range("B2:B" & ws.Cells(ws.Rows.Count, "B").End(xlUp).Row)
+
+        ' Loop through each cell in the child column
+        For Each cell In rng
+            If Left(cell.Value, 3) = "E01" Or Left(cell.Value, 3) = "E02" Or Left(cell.Value, 3) = "E03" Or Left(cell.Value, 3) = "E04" Then
+                ' Indent the child cell
+                cell.IndentLevel = 1
+                ' Gray out the preceding branch information in the child rows
+                cell.Offset(0, -1).Font.Color = RGB(128, 128, 128)
+            End If
+        Next cell
+
+    End If
+End Sub
