@@ -3,8 +3,6 @@ Sub Button1_Click()
     Dim ws As Worksheet
     Dim rng As Range
     Dim cell As Range
-    Dim colPosition As Integer
-    Dim firstRow As Range
     Dim dataTypes() As Variant
     Dim i As Integer
 
@@ -28,24 +26,20 @@ Sub Button1_Click()
             .TextFileSpaceDelimiter = False
             .TextFileTrailingMinusNumbers = True
             
-            ' Determine the position of "PLMファイル名" in the CSV
-            Set firstRow = ws.Range("A1:Z1") ' Assuming max 26 columns, adjust if needed
-            colPosition = Application.Match("PLMファイル名", firstRow, 0)
-
-            If Not IsError(colPosition) Then
-                ' Build the data type array
-                ReDim dataTypes(1 To firstRow.Cells.SpecialCells(xlCellTypeConstants).Count)
-                For i = 1 To UBound(dataTypes)
-                    If i = colPosition Then
-                        dataTypes(i) = 2 ' Treat as text
-                    Else
-                        dataTypes(i) = 1 ' General
-                    End If
-                Next i
-
-                .TextFileColumnDataTypes = dataTypes
-            End If
+            ' Set the data type array
+            Dim lastColumn As Integer
+            lastColumn = ws.Cells(1, ws.Columns.Count).End(xlToLeft).Column
+            ReDim dataTypes(1 To lastColumn)
             
+            For i = 1 To lastColumn
+                If i = 30 Then ' 30 corresponds to column AD
+                    dataTypes(i) = 2 ' Treat as text
+                Else
+                    dataTypes(i) = 1 ' General
+                End If
+            Next i
+            
+            .TextFileColumnDataTypes = dataTypes
             .Refresh BackgroundQuery:=False
         End With
 
